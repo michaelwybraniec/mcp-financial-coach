@@ -1,43 +1,23 @@
-# AI Financial Coach ֎
+# AI Financial Coach 
+
+Demo by [ONE-FRONT](https://www.one-front.com)
 
 The **AI Financial Coach** is a personalized financial advisor powered by Google's ADK (Agent Development Kit) framework. This app provides comprehensive financial analysis and recommendations based on user inputs including income, expenses, debts, and financial goals.
 
-## Features
-
-- **Multi-Agent Financial Analysis System**
-    - Budget Analysis Agent: Analyzes spending patterns and recommends optimizations
-    - Savings Strategy Agent: Creates personalized savings plans and emergency fund strategies
-    - Debt Reduction Agent: Develops optimized debt payoff strategies using avalanche and snowball methods
-
-- **Enhanced UI/UX**:
-  - Centered main title and application tagline for improved aesthetics.
-  - Prominent display of data privacy message ("All data is processed locally and not stored anywhere.").
-  - Independent scrollable columns for sidebar, input forms, and analysis results, adapting to screen height.
-
-- **Expense Analysis**:
-  - Supports both CSV upload and manual expense entry.
-  - Includes a "Download CSV Template" button for easy data preparation.
-  - CSV transaction analysis with date, category, and amount tracking.
-  - Visual breakdown of spending by category.
-  - Automated expense categorization and pattern detection.
-
-- **Savings Recommendations**:
-  - Emergency fund sizing and building strategies.
-  - Custom savings allocations across different goals.
-  - Practical automation techniques for consistent saving.
-  - Progress tracking and milestone recommendations.
-
-- **Debt Management**:
-  - Multiple debt handling with interest rate optimization.
-  - Comparison between avalanche and snowball methods.
-  - Visual debt payoff timeline and interest savings analysis.
-  - Actionable debt reduction recommendations.
-
-- **Interactive Visualizations**:
-  - Pie charts for expense breakdown.
-  - Bar charts for income vs. expenses.
-  - Debt comparison graphs.
-  - Progress tracking metrics.
+## Table of Contents
+- [AI Financial Coach](#ai-financial-coach)
+  - [Table of Contents](#table-of-contents)
+  - [Project Architecture](#project-architecture)
+  - [Agent Breakdown](#agent-breakdown)
+  - [Features](#features)
+  - [`agent.py` Structure](#agentpy-structure)
+  - [How to Run](#how-to-run)
+  - [CSV File Format](#csv-file-format)
+  - [Key Components](#key-components)
+    - [`FinanceAdvisorSystem` Class](#financeadvisorsystem-class)
+    - [Agents](#agents)
+    - [Pydantic Models](#pydantic-models)
+  - [Future Enhancements](#future-enhancements)
 
 ## Project Architecture
 
@@ -85,6 +65,43 @@ The core intelligence of the application resides in a **SequentialAgent** system
   - **Tasks**: Analyzes debts (interest rate, balance, minimum payments), creates prioritized payoff plans (avalanche and snowball methods), calculates total interest paid and time to debt freedom, and suggests strategies like consolidation or refinancing.
   - **Model**: `gemini-2.0-flash-exp`
   - **Output**: Produces a `DebtReduction` object, stored in `state['debt_reduction']`.
+
+## Features
+
+- **Multi-Agent Financial Analysis System**
+    - Budget Analysis Agent: Analyzes spending patterns and recommends optimizations
+    - Savings Strategy Agent: Creates personalized savings plans and emergency fund strategies
+    - Debt Reduction Agent: Develops optimized debt payoff strategies using avalanche and snowball methods
+
+- **Enhanced UI/UX**:
+  - Centered main title and application tagline for improved aesthetics.
+  - Prominent display of data privacy message ("All data is processed locally and not stored anywhere.").
+  - Independent scrollable columns for sidebar, input forms, and analysis results, adapting to screen height.
+
+- **Expense Analysis**:
+  - Supports both CSV upload and manual expense entry.
+  - Includes a "Download CSV Template" button for easy data preparation.
+  - CSV transaction analysis with date, category, and amount tracking.
+  - Visual breakdown of spending by category.
+  - Automated expense categorization and pattern detection.
+
+- **Savings Recommendations**:
+  - Emergency fund sizing and building strategies.
+  - Custom savings allocations across different goals.
+  - Practical automation techniques for consistent saving.
+  - Progress tracking and milestone recommendations.
+
+- **Debt Management**:
+  - Multiple debt handling with interest rate optimization.
+  - Comparison between avalanche and snowball methods.
+  - Visual debt payoff timeline and interest savings analysis.
+  - Actionable debt reduction recommendations.
+
+- **Interactive Visualizations**:
+  - Pie charts for expense breakdown.
+  - Bar charts for income vs. expenses.
+  - Debt comparison graphs.
+  - Progress tracking metrics.
 
 ## `agent.py` Structure
 
