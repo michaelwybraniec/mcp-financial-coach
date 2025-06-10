@@ -1,0 +1,9 @@
+google-adk==0.1.0
+streamlit
+pandas
+matplotlib
+numpy
+python-dotenv
+plotly
+asyncio
+pydantic
