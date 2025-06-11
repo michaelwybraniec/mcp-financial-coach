@@ -910,29 +910,48 @@ def _display_analysis_results():
     # Placeholder for results
     results_placeholder = st.empty()
     
-    # Display the ֎ symbol centered horizontally and vertically
-    with results_placeholder.container():
-        st.markdown(
-            """
-            <style>
-            .centered-symbol {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 350px; 
-                font-size: 25rem;
-                color: #F2F2F2; 
-                animation: spin 20s linear infinite; /* Add spinning animation */
-            }
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-            </style>
-            <div class="centered-symbol">֎</div>
-            """,
-            unsafe_allow_html=True
-        )
+    # Display the ֎ symbol initially when no analysis is triggered/processing
+    if not st.session_state.get('trigger_analysis', False) and not st.session_state.get('processing', False):
+        with results_placeholder.container():
+            st.markdown(
+                f"""
+                <style>
+                .full-center-container {{
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                }}
+                .centered-symbol {{
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 350px; 
+                    width: 350px; /* Make it square for perfect rounding */
+                    max-height: 350px; /* Ensure max height */
+                    max-width: 350px; /* Ensure max width */
+                    font-size: 25rem;
+                    color: {'#FFD700' if st.session_state.epic_mode else '#F2F2F2'}; /* Change color based on epic_mode */
+                    animation: spin 20s linear infinite {'' if not st.session_state.epic_mode else ', spin-colors 2s infinite'}; /* Conditional animation */
+                    border-radius: 50%; /* Fully rounded */
+                }}
+                @keyframes spin {{
+                    0% {{ transform: rotate(0deg); }}
+                    100% {{ transform: rotate(360deg); }}
+                }}
+                @keyframes spin-colors {{ /* New animation for colors */
+                    0% {{ color: #FFD700; }} /* Gold */
+                    33% {{ color: #8A2BE2; }} /* Blue Violet */
+                    66% {{ color: #00CED1; }} /* Dark Turquoise */
+                    100% {{ color: #FFD700; }}
+                }}
+                </style>
+                <div class="full-center-container">
+                    <div class="centered-symbol">֎</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
     if st.session_state.get('trigger_analysis', False):
         if not (st.session_state.monthly_income > 0 or 
@@ -941,31 +960,56 @@ def _display_analysis_results():
                 any(d['amount'] > 0 for d in st.session_state.debts)):
             results_placeholder.error("Please provide at least some income, expenses, or debt information to analyze.")
             st.session_state.trigger_analysis = False
+            st.session_state.processing = False # Reset processing if analysis cannot start
         else:
+            # Set processing to True, as it's already set by button click, but ensures
+            # that `processing` is true for this function's scope.
+            st.session_state.processing = True 
             with results_placeholder.container():
-                with st.markdown(
-                        """
+                st.markdown(
+                        f"""
                         <style>
-                        .centered-symbol {
+                        .full-center-container {{
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                        }}
+                        .centered-symbol {{
                             display: flex;
                             justify-content: center;
                             align-items: center;
                             height: 350px; 
+                            width: 350px; /* Make it square for perfect rounding */
+                            max-height: 350px; /* Ensure max height */
+                            max-width: 350px; /* Ensure max width */
                             font-size: 25rem;
-                            color: #F2F2F2; 
-                            animation: spin 1s linear infinite; /* Add spinning animation */
-                        }
-                        @keyframes spin {
-                            0% { transform: rotate(0deg); }
-                            100% { transform: rotate(-360deg); }
-                        }
+                            color: {'#FFD700' if st.session_state.epic_mode else '#F2F2F2'}; /* Change color based on epic_mode */
+                            animation: spin 1s linear infinite {'' if not st.session_state.epic_mode else ', spin-colors 2s infinite'}; /* Conditional animation */
+                            border-radius: 50%; /* Fully rounded */
+                        }}
+                        @keyframes spin {{
+                            0% {{ transform: rotate(0deg); }}
+                            100% {{ transform: rotate(-360deg); }}
+                        }}
+                        @keyframes spin-colors {{ /* New animation for colors */
+                            0% {{ color: #FFD700; }} /* Gold */
+                            33% {{ color: #8A2BE2; }} /* Blue Violet */
+                            66% {{ color: #00CED1; }} /* Dark Turquoise */
+                            100% {{ color: #FFD700; }}
+                        }}
                         </style>
-                        <div class="centered-symbol">֎</div>
-                        <span>Analyzing your financial data with AI agents...</span>
+                        <div class="full-center-container">
+                            <div class="centered-symbol">֎</div>
+                            <span>Analyzing your financial data with AI agents...</span>
+                            <span>Don't worry it is a simulation only.</span>
+                        </div>
                         """,
                         unsafe_allow_html=True
-                    ):
-                    financial_data = {
+                    ) # End of st.markdown, now correctly *inside* the spinner
+                    
+         
+                financial_data = {
                         "monthly_income": st.session_state.monthly_income,
                         "dependants": st.session_state.dependants,
                         "transactions": st.session_state.transactions_df.to_dict('records') if st.session_state.transactions_df is not None else [],
@@ -973,10 +1017,9 @@ def _display_analysis_results():
                         "debts": [d for d in st.session_state.debts if d['name'] and d['amount'] > 0]
                     }
                     
-                    try:
-                        # Run the analysis using the cached finance advisor system
+                try:
                         results = asyncio.run(st.session_state.finance_advisor.analyze_finances(financial_data))
-
+                        
                         st.success("Analysis Complete!")
                         st.subheader("Financial Report")
                         
@@ -998,9 +1041,40 @@ def _display_analysis_results():
                         with raw_tab:
                             st.json(results)
                             
-                    except Exception as e:
-                        st.error(f"An error occurred during financial analysis: {str(e)}")
-            st.session_state.trigger_analysis = False
+                except Exception as e:
+                        error_message_full = str(e)
+                        user_friendly_message = "An unexpected error occurred during financial analysis."
+                        
+                        json_start_index = error_message_full.find('{')
+                        if json_start_index != -1:
+                            json_part_str = error_message_full[json_start_index:].replace("'", '"')
+                            try:
+                                parsed_error = json.loads(json_part_str)
+                                api_error_details = parsed_error.get('error', {})
+                                specific_message = api_error_details.get('message')
+                                
+                                if specific_message:
+                                    if "API key expired" in specific_message:
+                                        user_friendly_message = (
+                                            "Your Google Gemini API key has expired. "
+                                            "Please generate a new one from Google AI Studio and update your .env file, "
+                                            "then restart the application. For more details, refer to the 'Setup' section."
+                                        )
+                                    else:
+                                        user_friendly_message = f"An API-related error occurred: {specific_message}"
+                                else:
+                                    user_friendly_message = f"An error occurred: {error_message_full}"
+                            except json.JSONDecodeError:
+                                user_friendly_message = f"An error occurred: {error_message_full}"
+                        else:
+                            user_friendly_message = f"An error occurred: {error_message_full}"
+                            
+                        results_placeholder.error(f"{user_friendly_message} Resetting app to default state.")
+                        _initialize_session_state() # Reset state on error
+                finally: # Ensure processing and trigger_analysis are always reset
+                        st.session_state.processing = False # Ensure processing is reset to False
+                        st.session_state.trigger_analysis = False # Reset trigger_analysis here too
+            # No else block here, as results_placeholder is cleared by st.spinner implicitly after analysis
 
 def _render_about_section():
     """
@@ -1039,24 +1113,19 @@ def _render_about_section():
     *   **Data Input:** Added a "Download CSV Template" button for easy data formatting.
     """, unsafe_allow_html=True)
 
-def main():
-    # Configure Streamlit page settings
-    st.set_page_config(
-        page_title="AI Financial Coach",
-        layout="wide",
-        initial_sidebar_state="expanded"
-    )
+# Helper function to initialize session state
+def _initialize_session_state():
+    """
+    Initializes or resets Streamlit session state variables to their default values.
+    This ensures consistent state across reruns and after errors.
+    """
+    st.session_state.setdefault('logs', [])
+    st.session_state.setdefault('epic_mode', False)
+    st.session_state.setdefault('processing', False)
 
-    # Initialize Streamlit session state variables
-    # These variables persist across reruns of the Streamlit app.
-    if 'logs' not in st.session_state:
-        st.session_state['logs'] = []
-
-    # Initialize other session state variables using setdefault for robustness
     st.session_state.setdefault('monthly_income', 3000.0)
     st.session_state.setdefault('dependants', 0)
     st.session_state.setdefault('transaction_file_content', None)
-    # Pre-fill manual expenses with example values to improve user experience
     st.session_state.setdefault('manual_expense_Housing', 1200.0)
     st.session_state.setdefault('manual_expense_Utilities', 150.0)
     st.session_state.setdefault('manual_expense_Food', 400.0)
@@ -1066,17 +1135,26 @@ def main():
     st.session_state.setdefault('manual_expense_Personal', 50.0)
     st.session_state.setdefault('manual_expense_Savings', 300.0)
     st.session_state.setdefault('manual_expense_Other', 50.0)
-    # manual_expenses will be reconstructed from individual manual_expense_* keys when needed
-    st.session_state.setdefault('manual_expenses', {}) 
+    st.session_state.setdefault('manual_expenses', {})
     st.session_state.setdefault('transactions_df', None)
-    # Pre-fill debts with example values for demonstration
     st.session_state.setdefault('debts', [
         {'name': 'Credit Card', 'amount': 5000.0, 'interest_rate': 18.0, 'min_payment': 100.0},
         {'name': 'Student Loan', 'amount': 15000.0, 'interest_rate': 4.5, 'min_payment': 150.0}
     ])
     st.session_state.setdefault('finance_advisor', get_finance_advisor_system())
-    # Set default expense input option to manual entry for quick start
-    st.session_state.setdefault('expense_option', 'Enter Manually') 
+    st.session_state.setdefault('expense_option', 'Enter Manually')
+    st.session_state.setdefault('analysis_results', None) # To store analysis results persistently
+
+def main():
+    # Configure Streamlit page settings
+    st.set_page_config(
+        page_title="AI Financial Coach",
+        layout="wide",
+        initial_sidebar_state="expanded"
+    )
+
+    # Initialize Streamlit session state variables
+    _initialize_session_state()
 
     # Check for GOOGLE_API_KEY environment variable
     if not GEMINI_API_KEY:
@@ -1134,8 +1212,20 @@ def main():
         st.markdown("<div style='text-align: center; margin-bottom: 1rem;'>Powered by Python, Gemini AI, Streamlit & <strong><a href='https://www.one-front.com/en?utm_source=linkedin&utm_medium=post&utm_campaign=mcp'>ONE-FRONT</a></strong></div>", unsafe_allow_html=True)
     
     with header_col_right:
-        pass # This column is intentionally left empty for layout balance
-    
+        # SUSPENSE MODE Button
+        col_left, col_right = st.columns([1, 0.3]) # Use columns to align button to right
+        with col_left:
+            # Play suspense music if epic mode is on
+            if st.session_state.epic_mode:
+                st.audio("no-copyright-suspense-music.mp3", format="audio/mp3", loop=True, autoplay=True)
+        with col_right:
+            if not st.session_state.get('processing', False):
+                st.button(
+                    "SUSPENSE OFF" if not st.session_state.epic_mode else "SUSPENSE ON",
+                    key="epic_mode_button_header",
+                    on_click=lambda: st.session_state.__setitem__('epic_mode', not st.session_state.epic_mode)
+                )
+
     # Define the main three-column layout for the application content
     col1, col2, col3 = st.columns(3)
 

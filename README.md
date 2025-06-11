@@ -8,14 +8,19 @@ Demo by [ONE-FRONT](https://www.one-front.com)
 The **AI Financial Coach** is a personalized financial advisor powered by Google's ADK (Agent Development Kit) framework. This app provides comprehensive financial analysis and recommendations based on user inputs including income, expenses, debts, and financial goals.
 
 ## Table of Contents
-- [Project Architecture](#project-architecture)
-- [Agent Breakdown](#agent-breakdown)
-- [Features](#features)
-- [agent.py Structure](#agentpy-structure)
-- [How to Run](#how-to-run)
-- [CSV File Format](#csv-file-format)
-- [Key Components](#key-components)
-- [Future Enhancements](#future-enhancements)
+- [AI Financial Coach ֎](#ai-financial-coach-)
+  - [Table of Contents](#table-of-contents)
+  - [Project Architecture](#project-architecture)
+  - [Agent Breakdown](#agent-breakdown)
+  - [Features](#features)
+  - [`agent.py` Structure](#agentpy-structure)
+  - [How to Run](#how-to-run)
+  - [CSV File Format](#csv-file-format)
+  - [Key Components](#key-components)
+    - [`FinanceAdvisorSystem` Class](#financeadvisorsystem-class)
+    - [Agents](#agents)
+    - [Pydantic Models](#pydantic-models)
+  - [Future Enhancements](#future-enhancements)
 
 ## Project Architecture
 
