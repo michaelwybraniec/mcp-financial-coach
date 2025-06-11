@@ -819,6 +819,9 @@ def _render_expenses_input():
             # Reconstruct manual_expenses from session_state for display purposes only
             current_manual_expenses = {cat_key: st.session_state.get(f"manual_expense_{cat_key}", 0.0) for _, cat_key in categories}
 
+            # Update st.session_state.manual_expenses after all inputs are processed
+            st.session_state.manual_expenses = current_manual_expenses
+
             if any(current_manual_expenses.values()):
                 st.markdown("#### Summary of Entered Expenses")
                 manual_df_disp = pd.DataFrame({
@@ -949,7 +952,7 @@ def _display_analysis_results():
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                height: 400px; 
+                height: 350px; 
                 font-size: 25rem;
                 color: #F2F2F2; 
                 animation: spin 20s linear infinite; /* Add spinning animation */
@@ -980,7 +983,7 @@ def _display_analysis_results():
                             display: flex;
                             justify-content: center;
                             align-items: center;
-                            height: 400px; 
+                            height: 350px; 
                             font-size: 25rem;
                             color: #F2F2F2; 
                             animation: spin 1s linear infinite; /* Add spinning animation */
@@ -1117,8 +1120,9 @@ def main():
     st.markdown("""
     <style>
     .stButton>button {
-        font-size: 10px; /* Smaller font size */
-        padding: 1px 10px; /* Added left and right padding */
+        font-size: 10px; 
+        padding: 0px 10px; 
+                margin-top: 5px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -1126,6 +1130,22 @@ def main():
     
     # Main content layout using columns for better organization
     header_col1, header_col_center, header_col_right = st.columns([1, 1, 1])
+
+    with header_col1:
+
+     
+            st.markdown(
+                """
+                <div style='display: flex; align-items: center; justify-content: flex-start; padding-top: 0rem;'>
+                    <dic style='font-size: 1rem; font-weight: bold; margin-right: 10px;'>Hi there!</div>
+                    <div style='font-size: 1rem; font-weight: bold; margin-right: 10px;'>- If you like it, buy me a <strong><a href='https://ko-fi.com/mikedev?utm_source=linkedin&utm_medium=post&utm_campaign=mcp_coffee'>Coffee</a></strong> ☕</div>
+                    <div style='font-size: 1rem; font-weight: bold; margin-right: 10px;'>- If you need a AI Engineer, contact me <strong><a href='https://www.linkedin.com/in/one-front/?utm_source=linkedin&utm_medium=post&utm_campaign=mcp_contact_me'>Here</a></strong> 🤙</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
     with header_col_center:
         # Layout for title, version, and the primary "Analyze Finances" button
         title_display_col, button_display_col = st.columns([0.7, 0.3]) # Adjust these proportions for alignment
@@ -1133,7 +1153,7 @@ def main():
         with title_display_col:
             st.markdown(
                 """
-                <div style='display: flex; align-items: center; justify-content: flex-end; padding-top: 2rem;'>
+                <div style='display: flex; align-items: center; justify-content: flex-end;'>
                     <span style='font-size: 2rem; font-weight: bold; margin-right: 10px;'>AI Financial Coach ֎</span>
                     <span style='font-size: 1.2rem; margin-right: 15px;'>v.2.0</span>
                 </div>
@@ -1142,11 +1162,10 @@ def main():
             )
 
         with button_display_col:
-            st.markdown("<div style='height: 2.2rem;'></div>", unsafe_allow_html=True) # Spacer for vertical alignment
-            # Trigger analysis when button is clicked by setting a session state flag
             st.button("Analyze Finances", key="analyze_button", on_click=lambda: st.session_state.__setitem__('trigger_analysis', True))
 
-        st.markdown("<div style='text-align: center; margin-bottom: 40px'>Powered by Google ADK, Gemini AI, Streamlit, and Cursor. Demo by <strong><a href='https://www.one-front.com'>ONE-FRONT</a></strong></div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; margin-bottom: 1rem;'>Powered by Python, Gemini AI, Streamlit & <strong><a href='https://www.one-front.com/en?utm_source=linkedin&utm_medium=post&utm_campaign=mcp'>ONE-FRONT</a></strong></div>", unsafe_allow_html=True)
+    
     with header_col_right:
         pass # This column is intentionally left empty for layout balance
     
@@ -1156,7 +1175,7 @@ def main():
     
     with col1:
         # Container for the left column content, including API key input and templates
-        with st.container(height=600):
+        with st.container(height=700):
             
                 st.header("Setup")
                 st.info("Your Google Gemini API key is used for AI model interactions. It is processed locally and never stored.")
@@ -1188,7 +1207,7 @@ def main():
    
     with col2:
         # Container for the middle column content, primarily financial data input forms
-        with st.container(height=600):
+        with st.container(height=700):
             st.header("Enter Your Financial Information")
             st.info("All values are placeholders. Data is processed locally and not stored anywhere.")
             _render_income_and_dependants()
@@ -1199,7 +1218,7 @@ def main():
 
     with col3:
         # Container for the right column content, displaying analysis results
-        with st.container(height=600):
+        with st.container(height=700):
             _display_analysis_results()
 
 if __name__ == "__main__":
